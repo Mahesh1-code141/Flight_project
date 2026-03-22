@@ -1,9 +1,13 @@
-FROM tomcat:10.1
+FROM nginx:alpine
 
-RUN rm -rf /usr/local/tomcat/webapps/*
+# Remove default nginx website
+RUN rm -rf /usr/share/nginx/html/*
 
-COPY target/flight-manufacturing.war /usr/local/tomcat/webapps/ROOT.war
+# Copy project files into nginx html directory
+COPY . /usr/share/nginx/html
 
-EXPOSE 2008
+# Expose port
+EXPOSE 2007
 
-CMD ["catalina.sh", "run"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
