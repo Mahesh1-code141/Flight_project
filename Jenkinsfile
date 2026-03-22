@@ -1,57 +1,49 @@
 pipeline {
-    agent any
+agent any
 
-    environment {
-        DOCKER_IMAGE = "mahesh2452/flight-app"
-        TAG = "latest"
-        GIT_REPO = "https://github.com/Mahesh1-code141/Flight_project.git"
+environment {
+    DOCKER_IMAGE = "mahesh2452/flight_project_img"
+}
+
+stages {
+
+    stage('GIT CHECKOUT') {
+        steps {
+            git branch: 'main',
+            credentialsId: 'Github',
+            url: 'https://github.com/Mahesh1-code141/Flight_project.git'
+        }
     }
 
-    stages {
-
-        stage('Clone Code') {
-            steps {
-                git branch: 'main',
-                    url: "${GIT_REPO}",
-                    credentialsId: 'Github'
-            }
+    stage('Docker Build') {
+        steps {
+            sh 'docker build -t $DOCKER_IMAGE:latest .'
         }
+    }
 
-        stage('Build WAR') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t $DOCKER_IMAGE:$TAG .'
-            }
-        }
-
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'Docker_CRED',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin'
-                }
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                sh 'docker push $DOCKER_IMAGE:$TAG'
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f k8s-deployment.yaml'
-                sh 'kubectl apply -f k8s-service.yaml'
+    stage('Docker Login') {
+        steps {
+            withCredentials([usernamePassword(credentialsId: 'Docker_CRED', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                sh 'echo $PASS | docker login -u $USER --password-stdin'
             }
         }
     }
+
+    stage('Push Image') {
+        steps {
+            sh 'docker push $DOCKER_IMAGE:latest'
+        }
+    }
+
+    stage('Deploy Container') {
+        steps {
+            sh '''
+            docker rm -f isro_cont || true
+	    docker run -d -p 2008:80 --name isro_cont $DOCKER_IMAGE:latest
+            '''
+        }
+    }
+
+}
+
 }
