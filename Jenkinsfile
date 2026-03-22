@@ -10,7 +10,7 @@ pipeline {
 
         stage('Clone Code') {
             steps {
-                git 'https://github.com/your-repo/flight-manufacturing.git'
+                git 'https://github.com/Mahesh1-code141/Flight_project.git'
             }
         }
 
@@ -29,7 +29,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'Dockerhub_cred',
+                    credentialsId: 'Dockerhub_CRED',
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
