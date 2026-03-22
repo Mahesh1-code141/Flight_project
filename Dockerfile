@@ -1,4 +1,4 @@
-# ---------- Stage 1: Build WAR ----------
+# ---------- Stage 1: Build WAR using Maven ----------
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
@@ -11,16 +11,17 @@ COPY src ./src
 RUN mvn clean package
 
 
-# ---------- Stage 2: Run Application ----------
-FROM openjdk:17
+# ---------- Stage 2: Run in Tomcat ----------
+FROM tomcat:10.1
 
-WORKDIR /app
+# Remove default apps
+RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Copy WAR from build stage
-COPY --from=build /app/target/*.war app.war
+# Copy WAR file from build stage
+COPY --from=build /app/target/flight-manufacturing.war /usr/local/tomcat/webapps/ROOT.war
 
 # Expose port
 EXPOSE 8082
 
-# Run Spring Boot app
-CMD ["java", "-jar", "app.war"]
+# Start Tomcat
+CMD [\"catalina.sh\", \"run\"]
