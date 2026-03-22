@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "yourdockerhubusername/flight-app"
+        DOCKER_IMAGE = "mahesh2452/flight-app"
         TAG = "latest"
         GIT_REPO = "https://github.com/Mahesh1-code141/Flight_project.git"
     }
