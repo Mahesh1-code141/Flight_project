@@ -1,13 +1,12 @@
 FROM nginx:alpine
 
-# Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy project files into nginx html directory
 COPY . /usr/share/nginx/html
 
-# Expose port
-EXPOSE 2008
+RUN chown -R nginx:nginx /usr/share/nginx/html \
+    && chmod -R 755 /usr/share/nginx/html
 
-# Start nginx
+EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
