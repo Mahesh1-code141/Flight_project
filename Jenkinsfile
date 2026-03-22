@@ -8,12 +8,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/your-repo/flight-manufacturing.git'
-            }
-        }
-
         stage('Build WAR') {
             steps {
                 sh 'mvn clean package'
@@ -29,7 +23,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-cred',
+                    credentialsId: 'Dockerhub-CRED',
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
