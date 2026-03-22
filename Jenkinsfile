@@ -8,15 +8,11 @@ pipeline {
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Mahesh1-code141/Flight_project.git'
-            }
-        }
-
         stage('Build WAR') {
             steps {
-                sh 'mvn clean package'
+                dir('backend') {   // change if needed
+                    sh 'mvn clean package'
+                }
             }
         }
 
