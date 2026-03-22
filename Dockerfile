@@ -20,8 +20,8 @@ RUN rm -rf /usr/local/tomcat/webapps/*
 # Copy WAR file from build stage
 COPY --from=build /app/target/flight-manufacturing.war /usr/local/tomcat/webapps/ROOT.war
 
-# Expose port
+# Expose correct port
 EXPOSE 8082
 
-# Start Tomcat
-CMD [\"catalina.sh\", \"run\"]
+# Start Tomcat (✅ FIXED)
+CMD ["catalina.sh", "run"]
