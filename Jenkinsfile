@@ -4,9 +4,18 @@ pipeline {
     environment {
         DOCKER_IMAGE = "yourdockerhubusername/flight-app"
         TAG = "latest"
+        GIT_REPO = "https://github.com/Mahesh1-code141/Flight_project.git"
     }
 
     stages {
+
+        stage('Clone Code') {
+            steps {
+                git branch: 'main',
+                    url: "${GIT_REPO}",
+                    credentialsId: 'github-cred'
+            }
+        }
 
         stage('Build WAR') {
             steps {
@@ -23,7 +32,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'Dockerhub-CRED',
+                    credentialsId: 'dockerhub-cred',
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
