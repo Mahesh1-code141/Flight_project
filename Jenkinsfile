@@ -30,7 +30,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                kubectl apply -f mahesh.yml
+                kubectl apply -f k8s-deployment.yaml
                 kubectl rollout status deployment/bootstrap
                 '''
             }
