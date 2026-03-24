@@ -1,44 +1,47 @@
 pipeline {
     agent any
-
     environment {
-        IMAGE_NAME = "mahesh2452/flight-project"
-        TAG = "latest"
+        DOCKER_USER = "mahesh2452"
+        IMAGE_NAME = "bootstrap"
+        IMAGE_TAG = "latest"
     }
-
     stages {
-
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Mahesh1-code141/Flight_project.git'
+                git branch: 'main', url: 'https://github.com/Mahesh1-code141/Electro_Bootstrap.git'
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Build Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$TAG .'
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
-
-        stage('Login to Docker Hub') {
+        stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Docker-CRED', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                withCredentials([usernamePassword(credentialsId: 'Docker_CRED', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh '''
+                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    docker push ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
                 }
             }
         }
-
-        stage('Push to Docker Hub') {
-            steps {
-                sh 'docker push $IMAGE_NAME:$TAG'
-            }
-        }
-
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s-deployment.yaml'
-                sh 'kubectl apply -f k8s-service.yaml'
+                sh '''
+                kubectl apply -f mahesh.yml
+                kubectl rollout status deployment/bootstrap
+                '''
             }
+        }
+    }
+    post {
+        success {
+            echo "Deployment Successful "
+        }
+        failure {
+            echo "Deployment Failed "
         }
     }
 }
