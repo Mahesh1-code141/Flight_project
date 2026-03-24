@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flight-app-deployment
+  name: flight-deployment
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: flight-app
@@ -13,7 +13,7 @@ spec:
         app: flight-app
     spec:
       containers:
-      - name: flight-app
-        image: yourdockerhubusername/flight-app:latest
+      - name: flight-container
+        image: mahesh2452/flight-project:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 80
