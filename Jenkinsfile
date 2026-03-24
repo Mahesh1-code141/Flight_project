@@ -31,7 +31,7 @@ pipeline {
             steps {
                 sh '''
                 kubectl apply -f k8s-deployment.yaml
-                kubectl rollout status deployment/bootstrap
+                kubectl rollout status deployment/flight-app
                 '''
             }
         }
