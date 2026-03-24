@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flight-deployment
+  name: flight-app
 spec:
   replicas: 3
   selector:
