@@ -2,13 +2,13 @@ pipeline {
     agent any
     environment {
         DOCKER_USER = "mahesh2452"
-        IMAGE_NAME = "bootstrap"
+        IMAGE_NAME = "flight"
         IMAGE_TAG = "latest"
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Mahesh1-code141/Electro_Bootstrap.git'
+                git branch: 'main', url: 'https://github.com/Mahesh1-code141/Flight_project.git'
             }
         }
         stage('Build Image') {
