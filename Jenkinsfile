@@ -35,15 +35,6 @@ stages {
         }
     }
 
-    stage('Deploy Container') {
-        steps {
-            sh '''
-            docker rm -f isro_cont || true
-	    docker run -d -p 2008:80 --name isro_cont $DOCKER_IMAGE:latest
-            '''
-        }
-    }
-
 }
 
 }
