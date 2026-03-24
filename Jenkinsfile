@@ -1,40 +1,42 @@
 pipeline {
-agent any
+    agent any
 
-environment {
-    DOCKER_IMAGE = "mahesh2452/flight_project_img"
-}
-
-stages {
-
-    stage('GIT CHECKOUT') {
-        steps {
-            git branch: 'main',
-            credentialsId: 'Github',
-            url: 'https://github.com/Mahesh1-code141/Flight_project.git'
-        }
+    environment {
+        IMAGE_NAME = "mahesh2452/flight-project"
+        TAG = "latest"
     }
 
-    stage('Docker Build') {
-        steps {
-            sh 'docker build -t $DOCKER_IMAGE:latest .'
-        }
-    }
+    stages {
 
-    stage('Docker Login') {
-        steps {
-            withCredentials([usernamePassword(credentialsId: 'Docker_CRED', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                sh 'echo $PASS | docker login -u $USER --password-stdin'
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Mahesh1-code141/Flight_project.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${IMAGE_NAME}:${TAG}")
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withDockerRegistry([credentialsId: 'dockerhub-cred', url: '']) {
+                    script {
+                        docker.image("${IMAGE_NAME}:${TAG}").push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'k8s-deployment.yaml'
+                sh 'k8s-service.yaml'
             }
         }
     }
-
-    stage('Push Image') {
-        steps {
-            sh 'docker push $DOCKER_IMAGE:latest'
-        }
-    }
-
-}
-
 }
