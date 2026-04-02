@@ -23,10 +23,9 @@ kind: Service
 metadata:
   name: flight-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: flight-app
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30008
