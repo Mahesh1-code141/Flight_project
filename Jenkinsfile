@@ -1,47 +1,110 @@
+
 pipeline {
     agent any
+
     environment {
-        DOCKER_USER = "mahesh2452"
-        IMAGE_NAME = "flight"
-        IMAGE_TAG = "latest"
+        SONARQUBE_ENV = 'sq'
+        DOCKER_IMAGE = "mahesh2452/mahesh_hotstar"
+        // AWS_CREDS = credentials('aws-creds')
+        // AWS_DEFAULT_REGION = 'us-east-1'
+        RECIPIENTS = 'maheshbabuya@gmail.com'
     }
+
     stages {
-        stage('Checkout') {
+
+        stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/Mahesh1-code141/Flight_project.git'
             }
         }
-        stage('Build Image') {
+        stage('BUILD') {
+        steps {
+            sh 'mvn clean package -DskipTests'
+        }
+    }
+        stage('JENKINS TO NEXUS') {
+        steps {
+          withMaven(jdk: 'jdk21', maven: 'maven3', traceability: true) {
+             sh 'mvn deploy'
+}
+        }
+    }
+        stage('SonarQube Analysis') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh 'mvn sonar:sonar'
+                }
             }
         }
-        stage('Push to DockerHub') {
+
+        stage('Quality Gate') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Docker_CRED', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE:latest .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh '''
-                    echo "$PASS" | docker login -u "$USER" --password-stdin
-                    docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}
-                    docker push ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    echo $PASS | docker login -u $USER --password-stdin
+                    docker push $DOCKER_IMAGE:latest
+                    docker logout
                     '''
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+         stage('Build') {
+            steps {
+                echo "Building..."
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "Testing..."
+            }
+        }
+
+        stage('Deploy to EKS') {
             steps {
                 sh '''
-                kubectl apply -f k8s-deployment.yaml
-                kubectl rollout status deployment/flight-app
+                export AWS_ACCESS_KEY_ID=$AWS_CREDS_USR
+                export AWS_SECRET_ACCESS_KEY=$AWS_CREDS_PSW
+
+                aws eks update-kubeconfig --region ap-south-1 --name mycluster
+                kubectl apply -f deployment.yml
+                kubectl apply -f service.yml
                 '''
             }
         }
     }
+
     post {
         success {
-            echo "Deployment Successful "
+            emailext(
+                subject: "Jenkins Job '${env.JOB_NAME}' Success",
+                body: "Good news! Job '${env.JOB_NAME}' (#${env.BUILD_NUMBER}) succeeded.\n\nCheck console output at ${env.BUILD_URL}",
+                to: "${RECIPIENTS}"
+            )
         }
+
         failure {
-            echo "Deployment Failed "
+            emailext(
+                subject: "Jenkins Job '${env.JOB_NAME}' Failed",
+                body: "Alert! Job '${env.JOB_NAME}' (#${env.BUILD_NUMBER}) failed.\n\nCheck console output at ${env.BUILD_URL}",
+                to: "${RECIPIENTS}"
+            )
         }
+
     }
 }
