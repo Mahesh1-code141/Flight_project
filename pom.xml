@@ -52,20 +52,14 @@
 
     </dependencies>
 <distributionManagement>
-         pom.xml file need below code above this line </project>
-<!-- ✅ IMPORTANT for Nexus -->
-    <version>1.0</version>
-
-<!-- ✅ FIXED NEXUS CONFIG -->
-    <distributionManagement>
     <repository>
         <id>nexus-releases</id>
-        <url>http://localhost:8081/repository/maven-releases/</url>
+        <url>http://3.94.92.196:8081/repository/maven-releases/</url>
     </repository>
 
     <snapshotRepository>
         <id>nexus-snapshots</id>
-        <url>http://localhost:8081/repository/maven-snapshots/</url>
+        <url>http://3.94.92.196:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
 </distributionManagement>
     <build>
