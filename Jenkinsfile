@@ -4,8 +4,6 @@ pipeline {
     environment {
         SONARQUBE_ENV = 'sq'
         DOCKER_IMAGE = "mahesh2452/mahesh_flight"
-        // AWS_CREDS = credentials('aws-creds')
-        // AWS_DEFAULT_REGION = 'us-east-1'
         RECIPIENTS = 'maheshbabuya@gmail.com'
     }
 
@@ -82,7 +80,6 @@ pipeline {
 
                 aws eks update-kubeconfig --region ap-south-1 --name mycluster
                 kubectl apply -f deployment.yml
-                // kubectl apply -f service.yml
                 '''
             }
         }
