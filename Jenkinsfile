@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE_ENV = 'sq'
-        DOCKER_IMAGE = "mahesh2452/mahesh_flight"
+        DOCKER_IMAGE = "mahesh2452/flight-project"
         RECIPIENTS = 'maheshbabuya@gmail.com'
     }
 
