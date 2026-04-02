@@ -82,7 +82,7 @@ pipeline {
 
                 aws eks update-kubeconfig --region ap-south-1 --name mycluster
                 kubectl apply -f deployment.yml
-                kubectl apply -f service.yml
+                // kubectl apply -f service.yml
                 '''
             }
         }
